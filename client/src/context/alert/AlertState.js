@@ -1,51 +1,35 @@
 import React, { useReducer } from 'react';
-import AuthContext from './authContext';
-import authReducer from './authReducer';
-import {
-  REGISTER_SUCCESS,
-  REGISTER_FAIL,
-  USER_LOADED,
-  AUTH_LOADED,
-  LOGIN_SUCCESS,
-  LOGIN_FAIL,
-  LOGOUT,
-  CLEAR_ERRORS,
-} from '../types';
+import { v4 as uuid } from 'uuid';
+import AlertContext from './alertContext';
+import alertReducer from './alertReducer';
+import { SET_ALERT, REMOVE_ALERT } from '../types';
 
-const AuthState = (props) => {
-  const initialState = {
-    token: localStorage.getItem('token'),
-    isAuthenticated: null,
-    loading: true,
-    user: null,
-    error: null,
+const AlertState = (props) => {
+  const initialState = [];
+
+  const [state, dispatch] = useReducer(alertReducer, initialState);
+
+  // Set Alert
+  const setAlert = (msg, type, timeout = 5000) => {
+    const id = uuid();
+    dispatch({
+      type: SET_ALERT,
+      payload: { msg, type, id },
+    });
+
+    setTimeout(() => dispatch({ type: REMOVE_ALERT, payload: id }), timeout);
   };
 
-  const [state, dispatch] = useReducer(authReducer, initialState);
-
-  // Load User
-
-  // Register User
-
-  // Login User
-
-  // Logout <-this will destroy the token
-
-  // Clear Errors
-
   return (
-    <AuthContext.Provider
+    <AlertContext.Provider
       value={{
-        token: state.token,
-        isAuthenticated: state.isAuthenticated,
-        loading: state.loading,
-        user: state.user,
-        error: state.error,
+        alerts: state,
+        setAlert,
       }}
     >
       {props.children}
-    </AuthContext.Provider>
+    </AlertContext.Provider>
   );
 };
 
-export default AuthState;
+export default AlertState;
